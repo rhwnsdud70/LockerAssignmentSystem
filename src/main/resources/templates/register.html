@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>회원가입</title>
+  <style>
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      background-color: #f9fafb;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px;
+    }
+
+    header {
+      margin-bottom: 30px;
+    }
+
+    header img {
+      height: 60px;
+    }
+
+    h2 {
+      color: #333;
+      margin-bottom: 20px;
+    }
+
+    form {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      max-width: 400px;
+      width: 100%;
+    }
+
+    input, select {
+      padding: 10px;
+      font-size: 14px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      padding: 10px;
+      font-size: 16px;
+      background-color: #4f46e5;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #4338ca;
+    }
+
+    small {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+<header>
+  <a href="/login">
+    <img src="/images/LAS_logo.png" alt="LAS 로고">
+  </a>
+</header>
+<h2>회원가입</h2>
+<form id="registerForm">
+  <input type="text" id="reg_id" placeholder="아이디">
+  <input type="password" id="reg_pw" placeholder="비밀번호">
+  <small>※ 비밀번호는 8자 이상이어야 합니다.</small>
+  <input type="text" id="reg_name" placeholder="이름">
+  <select id="reg_major">
+    <option value="컴퓨터공학전공">컴퓨터공학전공</option>
+    <option value="정보통신공학전공">정보통신공학전공</option>
+    <option value="소프트웨어융합전공">소프트웨어융합전공</option>
+  </select>
+  <input type="text" id="reg_studentNumber" placeholder="학번">
+  <input type="text" id="admin_code" placeholder="관리자 코드 (선택사항)">
+  <button type="submit">회원가입</button>
+</form>
+
+<script>
+  document.getElementById('registerForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+
+    const id = document.getElementById('reg_id').value.trim();
+    const pw = document.getElementById('reg_pw').value.trim();
+    const name = document.getElementById('reg_name').value.trim();
+    const major = document.getElementById('reg_major').value;
+    const studentNumber = document.getElementById('reg_studentNumber').value.trim();
+    const code = document.getElementById('admin_code').value.trim();
+
+    if (!id || !pw || !name || !major || !studentNumber) {
+      alert("모든 항목을 입력해야 합니다.");
+      return;
+    }
+
+    if (pw.length < 8) {
+      alert("비밀번호는 8자 이상이어야 합니다.");
+      return;
+    }
+
+    if (code && code !== "LAS") {
+      alert("관리자 코드가 올바르지 않습니다.");
+      return;
+    }
+
+    const data = {
+      id,
+      password: pw,
+      name,
+      major,
+      studentNumber,
+      adminCode: code
+    };
+
+    const res = await fetch('/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+
+    if (res.ok) {
+      alert('회원가입 성공! 로그인 페이지로 이동합니다.');
+      window.location.href = "/login";
+    } else {
+      const msg = await res.text();
+      alert('회원가입 실패: ' + msg);
+    }
+  });
+</script>
+</body>
+</html>

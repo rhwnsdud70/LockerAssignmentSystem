@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>사용자 정보 수정</title>
+  <style>
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      background-color: #f9fafb;
+      padding: 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .edit-container {
+      max-width: 500px;
+      width: 100%;
+      background-color: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+
+    h2 {
+      text-align: center;
+      color: #333;
+    }
+
+    .edit-item {
+      margin: 15px 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    input, select {
+      padding: 10px;
+      font-size: 14px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 10px;
+      font-size: 16px;
+      background-color: #4f46e5;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #4338ca;
+    }
+  </style>
+</head>
+<body>
+<script src="/js/header.js"></script>
+<div class="edit-container">
+  <h2>사용자 정보 수정</h2>
+  <div class="edit-item"><strong>아이디:</strong> <input type="text" id="id" disabled></div>
+  <div class="edit-item"><strong>이름:</strong> <input type="text" id="name"></div>
+  <div class="edit-item"><strong>비밀번호:</strong> <input type="text" id="password"></div>
+  <div class="edit-item"><strong>전공:</strong>
+    <select id="major">
+      <option value="컴퓨터공학전공">컴퓨터공학전공</option>
+      <option value="정보통신공학전공">정보통신공학전공</option>
+      <option value="소프트웨어융합전공">소프트웨어융합전공</option>
+    </select>
+  </div>
+  <div class="edit-item"><strong>학번:</strong> <input type="text" id="studentNumber"></div>
+  <div class="edit-item"><strong>역할:</strong>
+    <select id="role">
+      <option value="납부자">납부자</option>
+      <option value="미납부자">미납부자</option>
+    </select>
+  </div>
+  <button onclick="updateUser()">수정 완료</button>
+</div>
+
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const userId = params.get("id");
+
+  fetch(`/api/users/${userId}`)
+          .then(res => res.json())
+          .then(user => {
+            document.getElementById("id").value = user.id;
+            document.getElementById("name").value = user.name;
+            document.getElementById("password").value = user.password;
+            document.getElementById("major").value = user.major;
+            document.getElementById("studentNumber").value = user.studentNumber;
+            document.getElementById("role").value = user.role;
+          });
+
+  function updateUser() {
+    const updated = {
+      id: userId,
+      name: document.getElementById("name").value,
+      password: document.getElementById("password").value,
+      major: document.getElementById("major").value,
+      studentNumber: document.getElementById("studentNumber").value,
+      role: document.getElementById("role").value
+    };
+
+    fetch('/api/users/update', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updated)
+    }).then(res => {
+      if (res.ok) {
+        alert("수정 완료");
+        location.href = "/allUser";
+      } else {
+        res.text().then(msg => alert("수정 실패: " + msg));
+      }
+    });
+  }
+</script>
+</body>
+</html>
